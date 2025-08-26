@@ -3,70 +3,68 @@
         <div class="previewPart">
             <div id="previewContainer">
                 <div id="backgroundContainer" ref="backgroundContainer">
-                    <div id="watermarkContainer" ref="watermarkContainer"></div>
+                    <div id="watermarkContainer" ref="watermarkContainer" @mousedown="RecordPos"
+                        @mouseup="{ dragging = false; }" @mousemove="SetTranslateSyle">
+                    </div>
                 </div>
             </div>
         </div>
         <div class="operatePart">
-            <a-slider />
+            <a-slider :value="rusultData.watermarkData.offsetX"/>
+            <a-slider :value="rusultData.watermarkData.offsetY"/>
         </div>
         <div class="paramPart">
+            {{ rusultData.backgroundData.scale }}
+            {{ rusultData.watermarkData.scale }}
+            {{ rusultData.watermarkData.offsetX }}
+            {{ rusultData.watermarkData.offsetY }}
         </div>
     </div>
 </template>
 
 <script setup>
-import { useTemplateRef, onMounted } from 'vue'
-import { debounce } from './assets/utils';
+import { reactive } from 'vue'
 
-const rusultData = {
+const rusultData = reactive({
     backgroundData: {
         scale: 0,
     },
     watermarkData: {
         scale: 0,
-        offsetx: 0,
-        offsety: 0,
+        offsetX: 0,
+        offsetY: 0,
     },
-}
+});
 
-var watermarkContainer = useTemplateRef("watermarkContainer");
 var dragging = false;
+
 var lastCursorPosX = 0;
 var lastCursorPosY = 0;
-var lastWatermarkX = 0;
-var lastWatermarkY = 0; 
 
-onMounted(() => {
+var watermarkTranslateX = 0;
+var watermarkTranslateY = 0;
 
-    watermarkContainer.value.addEventListener('mousedown', function (e) {
-        dragging = true;
-        lastCursorPosX = e.clientX;
-        lastCursorPosY = e.clientY;
-        if(watermarkContainer.value.style.transform.match(/translate/g)){
-            let lastWatermarkXY = watermarkContainer.value.style.transform.match(/-?\d+/g);
-            lastWatermarkX = parseInt(lastWatermarkXY[0]);
-            lastWatermarkY = parseInt(lastWatermarkXY[1]);
-        }
-    });
+function RecordPos(e) {
+    dragging = true;
 
-    watermarkContainer.value.addEventListener('mouseup', function (e) {
-        dragging = false;
-    });
+    lastCursorPosX = e.clientX;
+    lastCursorPosY = e.clientY;
 
-    watermarkContainer.value.addEventListener('mouseleave', function (e) {
-        dragging = false;
-    });
+    if (e.target.style.transform.match(/translate/g)) {
+        let lastWatermarkXY = e.target.style.transform.match(/-?\d+/g);
+        watermarkTranslateX = parseInt(lastWatermarkXY[0]);
+        watermarkTranslateY = parseInt(lastWatermarkXY[1]);
+    }
+};
 
-    watermarkContainer.value.addEventListener('mousemove', function (e) {
-        if (dragging) {
-            let translateX = lastWatermarkX + (e.clientX - lastCursorPosX);
-            let translateY = lastWatermarkY + (e.clientY - lastCursorPosY);
+function SetTranslateSyle(e) {
+    if (dragging) {
+        rusultData.watermarkData.offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
+        rusultData.watermarkData.offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
 
-            watermarkContainer.value.style.transform = `translate(${translateX}px, ${translateY}px)`;
-        }
-    });
-})
+        e.target.style.transform = `translate(${rusultData.watermarkData.offsetX}px, ${rusultData.watermarkData.offsetY}px)`;
+    }
+};
 
 </script>
 
@@ -101,7 +99,10 @@ onMounted(() => {
     left: 0;
     height: 50px;
     width: 50px;
-    background-color: hsl(300, 100%, 50%);
+    background-image: url("./assets/watermark.png");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #watermarkContainer:hover {
@@ -112,5 +113,8 @@ onMounted(() => {
 #watermarkContainer:active {
     cursor: grab;
     filter: none;
+}
+
+.paramPart{
 }
 </style>
