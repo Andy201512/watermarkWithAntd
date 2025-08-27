@@ -10,46 +10,44 @@
                     <div id="backgroundContainer" ref="backgroundContainer"
                         @dragover="(event) => { event.preventDefault() }">
                         <div id="watermarkContainer" ref="watermarkContainer" draggable="true" @dragstart="RecordPos"
-                            @dragend="SetDraggingTranslateSyle"
-                            tabindex="0"
-                            @keydown="handleKeydown">
+                            @dragend="SetDraggingTranslateSyle" tabindex="0" @keydown="handleKeydown">
                         </div>
                     </div>
                 </div>
             </div>
             <div class="operatePart">
-                <a-row>
-                    <a-col :span="4" class="labelContainer">
-                        <span>水印横向偏移：</span>
-                    </a-col>
-                    <a-col :span="12">
-                        <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax"
-                            @change="(value) => SetSliderTranslateSyle(value, 'x')" />
-                    </a-col>
-                    <a-col :span="8">
-                        <a-input-number v-model:value="rusultData.watermarkData.offsetX" addonAfter="px"
-                            :min="0"
-                            :max="xMax"
-                            @change="(value) => {SetSliderTranslateSyle(value, 'x');}"
-                            @pressEnter="(event) => {SetSliderTranslateSyle(event.target.value, 'x'); event.target.blur();}"/>
-                    </a-col>
-                </a-row>
-                <a-row>
-                    <a-col :span="4" class="labelContainer">
-                        <span>水印纵向偏移：</span>
-                    </a-col>
-                    <a-col :span="12">
-                        <a-slider v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks" :max="yMax"
-                            @change="(value) => { SetSliderTranslateSyle(value, 'y'); event.target.blur();}" />
-                    </a-col>
-                    <a-col :span="8">
-                        <a-input-number v-model:value="rusultData.watermarkData.offsetY" addonAfter="px"
-                            :min="0"
-                            :max="yMax"
-                            @change="(value) => {SetSliderTranslateSyle(value, 'y');}"
-                            @pressEnter="(event) => SetSliderTranslateSyle(event.target.value, 'y')"/>
-                    </a-col>
-                </a-row>
+                <div>
+                    <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax"
+                        @change="(value) => SetSliderTranslateSyle(value, 'x')" />
+                </div>
+                <div>
+                    <div id="verticalSlider">
+                        <a-slider vertical reverse v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks" :max="yMax"
+                            @change="(value) => SetSliderTranslateSyle(value, 'y')" />
+                    </div>
+                    <div>
+                        <a-row>
+                            <a-col :span="8" class="labelContainer">
+                                <span>水印横向偏移：</span>
+                            </a-col>
+                            <a-col :span="16">
+                                <a-input-number v-model:value="rusultData.watermarkData.offsetX" addonAfter="px"
+                                    :min="0" :max="xMax" @change="(value) => { SetSliderTranslateSyle(value, 'x'); }"
+                                    @pressEnter="(event) => { SetSliderTranslateSyle(event.target.value, 'x'); event.target.blur(); }" />
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="8" class="labelContainer">
+                                <span>水印纵向偏移：</span>
+                            </a-col>
+                            <a-col :span="16">
+                                <a-input-number v-model:value="rusultData.watermarkData.offsetY" addonAfter="px"
+                                    :min="0" :max="yMax" @change="(value) => { SetSliderTranslateSyle(value, 'y'); }"
+                                    @pressEnter="(event) => { SetSliderTranslateSyle(event.target.value, 'y'); event.target.blur(); }" />
+                            </a-col>
+                        </a-row>
+                    </div>
+                </div>
             </div>
             <div class="paramPart">
             </div>
@@ -132,22 +130,22 @@ function SetSliderTranslateSyle(value, flage) {
     let offsetX = parseInt(lastWatermarkXY[0]) || 0;
     let offsetY = parseInt(lastWatermarkXY[1]) || 0;
     if (flage === 'x') {
-        if(value < 0){
+        if (value < 0) {
             offsetX = 0
-        }else if( value > xMax){
+        } else if (value > xMax) {
             offsetX = xMax
-        }else{
+        } else {
             offsetX = value
-        } 
+        }
     }
     if (flage === 'y') {
-        if(value < 0){
+        if (value < 0) {
             offsetY = 0
-        }else if( value > yMax){
+        } else if (value > yMax) {
             offsetY = yMax
-        }else{
+        } else {
             offsetY = value
-        } 
+        }
     }
     rusultData.value.watermarkData.offsetX = offsetX
     rusultData.value.watermarkData.offsetY = offsetY
@@ -159,30 +157,30 @@ function handleKeydown(event) {
     switch (event.code) {
         case "ArrowDown":
             // Handle "down"
-            if(rusultData.value.watermarkData.offsetY > -1 &&
+            if (rusultData.value.watermarkData.offsetY > -1 &&
                 rusultData.value.watermarkData.offsetY < yMax.value
-            ){rusultData.value.watermarkData.offsetY++};
+            ) { rusultData.value.watermarkData.offsetY++ };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y')
             break;
         case "ArrowUp":
             // Handle "up"
-            if(rusultData.value.watermarkData.offsetY > 0 &&
+            if (rusultData.value.watermarkData.offsetY > 0 &&
                 rusultData.value.watermarkData.offsetY < yMax.value
-            ){rusultData.value.watermarkData.offsetY--};
+            ) { rusultData.value.watermarkData.offsetY-- };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y')
             break;
         case "ArrowLeft":
             // Handle "turn left"
-            if(rusultData.value.watermarkData.offsetX > 0 &&
+            if (rusultData.value.watermarkData.offsetX > 0 &&
                 rusultData.value.watermarkData.offsetX < xMax.value
-            ){rusultData.value.watermarkData.offsetX--};
+            ) { rusultData.value.watermarkData.offsetX-- };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x')
             break;
         case "ArrowRight":
             // Handle "turn right"
-            if(rusultData.value.watermarkData.offsetX > -1 &&
-                rusultData.value.watermarkData.offsetX < xMax.value 
-            ){rusultData.value.watermarkData.offsetX++};
+            if (rusultData.value.watermarkData.offsetX > -1 &&
+                rusultData.value.watermarkData.offsetX < xMax.value
+            ) { rusultData.value.watermarkData.offsetX++ };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x')
             break;
     }
@@ -209,7 +207,7 @@ onMounted(() => {
 #previewContainer {
     height: 100%;
     width: 100%;
-    padding: 19.1%;
+    padding: 5% 10%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -251,6 +249,28 @@ onMounted(() => {
 
 .operatePart {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.operatePart>div:nth-child(1){
+    flex-grow: 1;
+    width: 90%;
+    align-self: end;
+}
+
+.operatePart>div:nth-child(2){
+    flex-grow: 9;
+    display: flex;
+    flex-direction: row;
+}
+
+#verticalSlider{
+    flex-grow: 5;
+}
+
+#verticalSlider+div{
+    flex-grow: 5;
 }
 
 .labelContainer {
