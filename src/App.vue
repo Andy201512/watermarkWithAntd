@@ -17,13 +17,12 @@
             </div>
             <div class="operatePart">
                 <div>
-                    <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax"
-                        @change="(value) => SetSliderTranslateSyle(value, 'x')" />
+                    <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax" />
                 </div>
                 <div>
                     <div id="verticalSlider">
-                        <a-slider vertical reverse v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks" :max="yMax"
-                            @change="(value) => SetSliderTranslateSyle(value, 'y')" />
+                        <a-slider vertical reverse v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks"
+                            :max="yMax" />
                     </div>
                     <div>
                         <a-row>
@@ -32,8 +31,7 @@
                             </a-col>
                             <a-col :span="16">
                                 <a-input-number v-model:value="rusultData.watermarkData.offsetX" addonAfter="px"
-                                    :min="0" :max="xMax" @change="(value) => { SetSliderTranslateSyle(value, 'x'); }"
-                                    @pressEnter="(event) => { SetSliderTranslateSyle(event.target.value, 'x'); event.target.blur(); }" />
+                                    :min="0" :max="xMax" @pressEnter="(event) => { event.target.blur(); }" />
                             </a-col>
                         </a-row>
                         <a-row>
@@ -42,8 +40,7 @@
                             </a-col>
                             <a-col :span="16">
                                 <a-input-number v-model:value="rusultData.watermarkData.offsetY" addonAfter="px"
-                                    :min="0" :max="yMax" @change="(value) => { SetSliderTranslateSyle(value, 'y'); }"
-                                    @pressEnter="(event) => { SetSliderTranslateSyle(event.target.value, 'y'); event.target.blur(); }" />
+                                    :min="0" :max="yMax" @pressEnter="(event) => { event.target.blur(); }" />
                             </a-col>
                         </a-row>
                     </div>
@@ -56,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, useTemplateRef } from 'vue'
+import { ref, onMounted, useTemplateRef, watch } from 'vue'
 
 // 图片打水印的关键数据
 const rusultData = ref({
@@ -69,6 +66,10 @@ const rusultData = ref({
         offsetY: 0,
     },
 });
+
+watch(rusultData, (newData) => {
+    watermarkContainerRef.value.style.transform = `translate(${newData.watermarkData.offsetX}px, ${newData.watermarkData.offsetY}px)`;
+}, { deep: true });
 
 const backgroundContainerRef = useTemplateRef("backgroundContainer");
 const watermarkContainerRef = useTemplateRef("watermarkContainer");
@@ -106,7 +107,7 @@ function RecordPos(e) {
 
 };
 
-// 设置水印偏移
+// 拖拽水印偏移
 function SetDraggingTranslateSyle(e) {
 
     let offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
@@ -120,38 +121,11 @@ function SetDraggingTranslateSyle(e) {
     ) {
         rusultData.value.watermarkData.offsetX = offsetX
         rusultData.value.watermarkData.offsetY = offsetY
-        e.target.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     }
 
 };
 
-function SetSliderTranslateSyle(value, flage) {
-    let lastWatermarkXY = watermarkContainerRef.value.style?.transform.match(/-?\d+/g) || [0, 0];
-    let offsetX = parseInt(lastWatermarkXY[0]) || 0;
-    let offsetY = parseInt(lastWatermarkXY[1]) || 0;
-    if (flage === 'x') {
-        if (value < 0) {
-            offsetX = 0
-        } else if (value > xMax) {
-            offsetX = xMax
-        } else {
-            offsetX = value
-        }
-    }
-    if (flage === 'y') {
-        if (value < 0) {
-            offsetY = 0
-        } else if (value > yMax) {
-            offsetY = yMax
-        } else {
-            offsetY = value
-        }
-    }
-    rusultData.value.watermarkData.offsetX = offsetX
-    rusultData.value.watermarkData.offsetY = offsetY
-    watermarkContainerRef.value.style.transform = `translate(${offsetX}px, ${offsetY}px)`
-}
-
+// 键盘方向键水印偏移
 function handleKeydown(event) {
 
     switch (event.code) {
@@ -160,37 +134,31 @@ function handleKeydown(event) {
             if (rusultData.value.watermarkData.offsetY > -1 &&
                 rusultData.value.watermarkData.offsetY < yMax.value
             ) { rusultData.value.watermarkData.offsetY++ };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y');
             break;
         case "ArrowUp":
             // Handle "up"
             if (rusultData.value.watermarkData.offsetY > 0 &&
                 rusultData.value.watermarkData.offsetY < yMax.value + 1
             ) { rusultData.value.watermarkData.offsetY-- };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y');
             break;
         case "ArrowLeft":
             // Handle "turn left"
             if (rusultData.value.watermarkData.offsetX > 0 &&
                 rusultData.value.watermarkData.offsetX < xMax.value + 1
             ) { rusultData.value.watermarkData.offsetX-- };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x');
             break;
         case "ArrowRight":
             // Handle "turn right"
             if (rusultData.value.watermarkData.offsetX > -1 &&
                 rusultData.value.watermarkData.offsetX < xMax.value
             ) { rusultData.value.watermarkData.offsetX++ };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x');
             break;
     }
 }
 
-function updateFundermantialData(){
+function updateFundermantialData() {
     rusultData.value.watermarkData.offsetX = 0;
     rusultData.value.watermarkData.offsetY = 0;
-    SetSliderTranslateSyle(0, 'x');
-    SetSliderTranslateSyle(0, 'y');
 
     // 设置滑动条的水印偏移值范围
     let height = backgroundContainerRef.value.clientHeight - watermarkContainerRef.value.clientHeight;
@@ -263,23 +231,23 @@ onMounted(() => {
     flex-direction: column;
 }
 
-.operatePart>div:nth-child(1){
+.operatePart>div:nth-child(1) {
     flex-grow: 1;
     width: 90%;
     align-self: end;
 }
 
-.operatePart>div:nth-child(2){
+.operatePart>div:nth-child(2) {
     flex-grow: 9;
     display: flex;
     flex-direction: row;
 }
 
-#verticalSlider{
+#verticalSlider {
     flex-grow: 5;
 }
 
-#verticalSlider+div{
+#verticalSlider+div {
     flex-grow: 5;
 }
 
