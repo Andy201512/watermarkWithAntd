@@ -8,8 +8,8 @@
             <div class="previewPart">
                 <div id="previewContainer">
                     <div id="backgroundContainer" ref="backgroundContainer">
-                        <div id="watermarkContainer" ref="watermarkContainer" @mousedown="RecordPos"
-                            @mouseup="{ dragging = false; }" @mousemove="SetDraggingTranslateSyle">
+                        <div id="watermarkContainer" ref="watermarkContainer" draggable="true" @dragstart="RecordPos"
+                            @dragend="SetDraggingTranslateSyle">
                         </div>
                     </div>
                 </div>
@@ -20,7 +20,8 @@
                         <span>水印横向偏移：</span>
                     </a-col>
                     <a-col :span="16">
-                        <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax" @change="(value)=>SetSliderTranslateSyle(value,'x')"/>
+                        <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax"
+                            @change="(value) => SetSliderTranslateSyle(value, 'x')" />
                     </a-col>
                 </a-row>
                 <a-row>
@@ -28,7 +29,8 @@
                         <span>水印纵向偏移：</span>
                     </a-col>
                     <a-col :span="16">
-                        <a-slider v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks" :max="yMax"  @change="(value)=>SetSliderTranslateSyle(value, 'y')"/>
+                        <a-slider v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks" :max="yMax"
+                            @change="(value) => SetSliderTranslateSyle(value, 'y')" />
                     </a-col>
                 </a-row>
             </div>
@@ -60,9 +62,6 @@ const rusultData = ref({
 const backgroundContainerRef = useTemplateRef("backgroundContainer");
 const watermarkContainerRef = useTemplateRef("watermarkContainer");
 
-// 水印进入滑动过程的标志
-var dragging = false;
-
 // 水印开始滑动时的鼠标位置
 var lastCursorPosX = 0;
 var lastCursorPosY = 0;
@@ -85,44 +84,43 @@ const yMax = ref(100)
 
 // 记录拖动开始
 function RecordPos(e) {
-    dragging = true;
 
     lastCursorPosX = e.clientX;
     lastCursorPosY = e.clientY;
 
-    if (e.target.style.transform.match(/translate/g)) {
-        let lastWatermarkXY = e.target.style.transform.match(/-?\d+/g);
-        watermarkTranslateX = parseInt(lastWatermarkXY[0]);
-        watermarkTranslateY = parseInt(lastWatermarkXY[1]);
-    }
+
+    let lastWatermarkXY = e.target.style.transform.match(/-?\d+/g) || [0, 0];
+    watermarkTranslateX = parseInt(lastWatermarkXY[0]) || 0;
+    watermarkTranslateY = parseInt(lastWatermarkXY[1]) || 0;
+
 };
 
 // 设置水印偏移
 function SetDraggingTranslateSyle(e) {
-    if (dragging) {
-        rusultData.value.watermarkData.offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
-        rusultData.value.watermarkData.offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
 
-        if (
-            rusultData.value.watermarkData.offsetX >= 0 &&
-            rusultData.value.watermarkData.offsetX <= xMax.value &&
-            rusultData.value.watermarkData.offsetY >= 0 &&
-            rusultData.value.watermarkData.offsetY <= yMax.value
-        ) {
-            e.target.style.transform = `translate(${rusultData.value.watermarkData.offsetX}px, ${rusultData.value.watermarkData.offsetY}px)`;
+    rusultData.value.watermarkData.offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
+    rusultData.value.watermarkData.offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
 
-        }
+    if (
+        rusultData.value.watermarkData.offsetX >= 0 &&
+        rusultData.value.watermarkData.offsetX <= xMax.value &&
+        rusultData.value.watermarkData.offsetY >= 0 &&
+        rusultData.value.watermarkData.offsetY <= yMax.value
+    ) {
+        e.target.style.transform = `translate(${rusultData.value.watermarkData.offsetX}px, ${rusultData.value.watermarkData.offsetY}px)`;
+
     }
+
 };
 
 function SetSliderTranslateSyle(value, flage) {
-    var lastWatermarkXY = watermarkContainerRef.value.style?.transform.match(/-?\d+/g) || [0,0];
-    var offsetX = parseInt(lastWatermarkXY[0]) || 0;
-    var offsetY = parseInt(lastWatermarkXY[1]) || 0;
-    if(flage === 'x'){
+    let lastWatermarkXY = watermarkContainerRef.value.style?.transform.match(/-?\d+/g) || [0, 0];
+    let offsetX = parseInt(lastWatermarkXY[0]) || 0;
+    let offsetY = parseInt(lastWatermarkXY[1]) || 0;
+    if (flage === 'x') {
         offsetX = value
     }
-    if(flage === 'y'){
+    if (flage === 'y') {
         offsetY = value
     }
     watermarkContainerRef.value.style.transform = `translate(${offsetX}px, ${offsetY}px)`
@@ -177,7 +175,6 @@ onMounted(() => {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    transform: translate(0px,0px);
 }
 
 #watermarkContainer:hover {
