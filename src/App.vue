@@ -165,14 +165,14 @@ function handleKeydown(event) {
         case "ArrowUp":
             // Handle "up"
             if (rusultData.value.watermarkData.offsetY > 0 &&
-                rusultData.value.watermarkData.offsetY < yMax.value
+                rusultData.value.watermarkData.offsetY < yMax.value + 1
             ) { rusultData.value.watermarkData.offsetY-- };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y')
             break;
         case "ArrowLeft":
             // Handle "turn left"
             if (rusultData.value.watermarkData.offsetX > 0 &&
-                rusultData.value.watermarkData.offsetX < xMax.value
+                rusultData.value.watermarkData.offsetX < xMax.value + 1
             ) { rusultData.value.watermarkData.offsetX-- };
             SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x')
             break;
