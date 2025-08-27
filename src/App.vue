@@ -231,7 +231,7 @@ onMounted(() => {
     left: 0;
     height: 50px;
     width: 50px;
-    background-image: url("./assets/watermark.png");
+    background-image: url("./assets/mark.svg");
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
