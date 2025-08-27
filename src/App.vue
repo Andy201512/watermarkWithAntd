@@ -15,6 +15,14 @@
                     </div>
                 </div>
             </div>
+            <a-float-button @click="handleClick" :style="{
+                top: '45%',
+                right: '39%',
+            }">
+                <template #icon>
+                    <DownloadOutlined />
+                </template>
+            </a-float-button>
             <div class="operatePart">
                 <div>
                     <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax" />
@@ -26,27 +34,72 @@
                     </div>
                     <div>
                         <a-row>
-                            <a-col :span="8" class="labelContainer">
+                            <a-col :span="12" class="labelContainer">
+                                <span>上传背景图片：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-upload v-model:file-list="fileList" name="file"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :headers="headers"
+                                    @change="handleChange">
+                                    <a-button>
+                                        <upload-outlined></upload-outlined>
+                                        Click to Upload
+                                    </a-button>
+                                </a-upload>
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
+                                <span>上传水印图片：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-upload v-model:file-list="fileList" name="file"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :headers="headers"
+                                    @change="handleChange">
+                                    <a-button>
+                                        <upload-outlined></upload-outlined>
+                                        Click to Upload
+                                    </a-button>
+                                </a-upload>
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
                                 <span>水印横向偏移：</span>
                             </a-col>
-                            <a-col :span="16">
+                            <a-col :span="12">
                                 <a-input-number v-model:value="rusultData.watermarkData.offsetX" addonAfter="px"
                                     :min="0" :max="xMax" @pressEnter="(event) => { event.target.blur(); }" />
                             </a-col>
                         </a-row>
                         <a-row>
-                            <a-col :span="8" class="labelContainer">
+                            <a-col :span="12" class="labelContainer">
                                 <span>水印纵向偏移：</span>
                             </a-col>
-                            <a-col :span="16">
+                            <a-col :span="12">
                                 <a-input-number v-model:value="rusultData.watermarkData.offsetY" addonAfter="px"
                                     :min="0" :max="yMax" @pressEnter="(event) => { event.target.blur(); }" />
                             </a-col>
                         </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
+                                <span>背景图片缩放比：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-input-number v-model:value="rusultData.backgroundData.scale" addonAfter="%"
+                                    disabled />
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
+                                <span>水印图片缩放比：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-input-number v-model:value="rusultData.watermarkData.scale" addonAfter="%" />
+                            </a-col>
+                        </a-row>
                     </div>
                 </div>
-            </div>
-            <div class="paramPart">
             </div>
         </div>
     </a-config-provider>
@@ -54,14 +107,16 @@
 
 <script setup>
 import { ref, onMounted, useTemplateRef, watch } from 'vue'
+import { DownloadOutlined } from '@ant-design/icons-vue';
+
 
 // 图片打水印的关键数据
 const rusultData = ref({
     backgroundData: {
-        scale: 0,
+        scale: 100,
     },
     watermarkData: {
-        scale: 0,
+        scale: 100,
         offsetX: 0,
         offsetY: 0,
     },
@@ -226,15 +281,17 @@ onMounted(() => {
 }
 
 .operatePart {
-    padding: 20px;
     display: flex;
     flex-direction: column;
+    margin: 5%;
+    padding: 5%;
+    border: dashed gray;
 }
 
 .operatePart>div:nth-child(1) {
     flex-grow: 1;
     width: 90%;
-    align-self: end;
+    align-self: center;
 }
 
 .operatePart>div:nth-child(2) {
@@ -245,16 +302,23 @@ onMounted(() => {
 
 #verticalSlider {
     flex-grow: 5;
+    height: 90%;
 }
 
 #verticalSlider+div {
     flex-grow: 5;
+    display: flex;
+    flex-direction: column;
+    align-content: space-around;
+}
+
+#verticalSlider+div>div {
+    flex-grow: 5;
+    align-content: center;
 }
 
 .labelContainer {
     align-content: center;
     text-align: center;
 }
-
-.paramPart {}
 </style>

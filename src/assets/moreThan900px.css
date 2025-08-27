@@ -4,11 +4,8 @@
     background-color: antiquewhite;
     display: grid;
     grid-template-areas:
-        "previewPart previewPart operatePart"
-        "previewPart previewPart operatePart"
-        "previewPart previewPart paramPart";
-    grid-template-columns: 30.4% 30.4% 38.2%;
-    grid-template-rows: 30.4% 30.4% 38.2%;
+        "previewPart operatePart";
+    grid-template-columns: 61.8% 38.2%;
 }
 
 .previewPart{
@@ -17,8 +14,4 @@
 
 .operatePart{
     grid-area: operatePart;
-}
-
-.paramPart{
-    grid-area: paramPart;
 }

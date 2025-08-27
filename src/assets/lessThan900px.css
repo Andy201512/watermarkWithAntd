@@ -5,10 +5,8 @@
     display: grid;
     grid-template-areas:
         "previewPart"
-        "operatePart"
-        "paramPart";
-    grid-template-columns: auto;
-    grid-template-rows: 61.8% 19.1% 19.1%;
+        "operatePart";
+    grid-template-rows: 61.8% 38.2%;
 }
 
 .previewPart{
@@ -17,8 +15,4 @@
 
 .operatePart{
     grid-area: operatePart;
-}
-
-.paramPart{
-    grid-area: paramPart;
 }
