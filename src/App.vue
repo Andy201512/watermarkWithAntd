@@ -160,42 +160,52 @@ function handleKeydown(event) {
             if (rusultData.value.watermarkData.offsetY > -1 &&
                 rusultData.value.watermarkData.offsetY < yMax.value
             ) { rusultData.value.watermarkData.offsetY++ };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y')
+            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y');
             break;
         case "ArrowUp":
             // Handle "up"
             if (rusultData.value.watermarkData.offsetY > 0 &&
                 rusultData.value.watermarkData.offsetY < yMax.value + 1
             ) { rusultData.value.watermarkData.offsetY-- };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y')
+            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetY, 'y');
             break;
         case "ArrowLeft":
             // Handle "turn left"
             if (rusultData.value.watermarkData.offsetX > 0 &&
                 rusultData.value.watermarkData.offsetX < xMax.value + 1
             ) { rusultData.value.watermarkData.offsetX-- };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x')
+            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x');
             break;
         case "ArrowRight":
             // Handle "turn right"
             if (rusultData.value.watermarkData.offsetX > -1 &&
                 rusultData.value.watermarkData.offsetX < xMax.value
             ) { rusultData.value.watermarkData.offsetX++ };
-            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x')
+            SetSliderTranslateSyle(rusultData.value.watermarkData.offsetX, 'x');
             break;
     }
 }
 
-onMounted(() => {
+function updateFundermantialData(){
+    rusultData.value.watermarkData.offsetX = 0;
+    rusultData.value.watermarkData.offsetY = 0;
+    SetSliderTranslateSyle(0, 'x');
+    SetSliderTranslateSyle(0, 'y');
+
     // 设置滑动条的水印偏移值范围
     let height = backgroundContainerRef.value.clientHeight - watermarkContainerRef.value.clientHeight;
     let width = backgroundContainerRef.value.clientWidth - watermarkContainerRef.value.clientWidth;
-    delete yMarks.value[100];
-    delete xMarks.value[100];
+    delete yMarks.value[yMax.value];
+    delete xMarks.value[xMax.value];
     yMarks.value[height] = `${height}px`;
     xMarks.value[width] = `${width}px`;
     yMax.value = height;
     xMax.value = width;
+}
+
+onMounted(() => {
+    updateFundermantialData()
+    window.addEventListener('resize', updateFundermantialData);
 });
 
 </script>
