@@ -7,7 +7,7 @@
         <div class="mainView">
             <div class="previewPart">
                 <div id="previewContainer">
-                    <div id="backgroundContainer" ref="backgroundContainer">
+                    <div id="backgroundContainer" ref="backgroundContainer" @dragover="(event) => {event.preventDefault()}">
                         <div id="watermarkContainer" ref="watermarkContainer" draggable="true" @dragstart="RecordPos"
                             @dragend="SetDraggingTranslateSyle">
                         </div>
@@ -98,17 +98,18 @@ function RecordPos(e) {
 // 设置水印偏移
 function SetDraggingTranslateSyle(e) {
 
-    rusultData.value.watermarkData.offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
-    rusultData.value.watermarkData.offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
+    let offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
+    let offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
 
     if (
-        rusultData.value.watermarkData.offsetX >= 0 &&
-        rusultData.value.watermarkData.offsetX <= xMax.value &&
-        rusultData.value.watermarkData.offsetY >= 0 &&
-        rusultData.value.watermarkData.offsetY <= yMax.value
+        offsetX >= 0 &&
+        offsetX <= xMax.value &&
+        offsetY >= 0 &&
+        offsetY <= yMax.value
     ) {
-        e.target.style.transform = `translate(${rusultData.value.watermarkData.offsetX}px, ${rusultData.value.watermarkData.offsetY}px)`;
-
+        rusultData.value.watermarkData.offsetX = offsetX
+        rusultData.value.watermarkData.offsetY = offsetY
+        e.target.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     }
 
 };
