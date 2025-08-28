@@ -26,3 +26,17 @@ export function throttle(fn, delay) {
         }, delay)
     }
 }
+
+// 图片同步加载
+export async function loadImage(imageUrl) {
+    let img;
+    const imageLoadPromise = new Promise(resolve => {
+        img = new Image();
+        img.onload = resolve;
+        img.src = imageUrl;
+    });
+
+    await imageLoadPromise;
+    
+    return img;
+}

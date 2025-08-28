@@ -25,11 +25,11 @@
             </a-float-button>
             <div class="operatePart">
                 <div>
-                    <a-slider v-model:value="rusultData.watermarkData.offsetX" :marks="xMarks" :max="xMax" />
+                    <a-slider v-model:value="keyData.watermarkData.offsetX" :marks="xMarks" :max="xMax" />
                 </div>
                 <div>
                     <div id="verticalSlider">
-                        <a-slider vertical reverse v-model:value="rusultData.watermarkData.offsetY" :marks="yMarks"
+                        <a-slider vertical reverse v-model:value="keyData.watermarkData.offsetY" :marks="yMarks"
                             :max="yMax" />
                     </div>
                     <div>
@@ -38,9 +38,8 @@
                                 <span>上传背景图片：</span>
                             </a-col>
                             <a-col :span="12">
-                                <a-upload v-model:file-list="fileList" name="file"
-                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :headers="headers"
-                                    @change="handleChange">
+                                <a-upload v-model:file-list="bFileList" name="backgroundFile"
+                                    :beforeUpload="beforeUploadBG" @change="handleChange" :maxCount="1">
                                     <a-button>
                                         <upload-outlined></upload-outlined>
                                         Click to Upload
@@ -53,9 +52,8 @@
                                 <span>上传水印图片：</span>
                             </a-col>
                             <a-col :span="12">
-                                <a-upload v-model:file-list="fileList" name="file"
-                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76" :headers="headers"
-                                    @change="handleChange">
+                                <a-upload v-model:file-list="wFileList" name="watermarkFile"
+                                    :beforeUpload="beforeUploadWM" @change="handleChange" :maxCount="1">
                                     <a-button>
                                         <upload-outlined></upload-outlined>
                                         Click to Upload
@@ -65,29 +63,10 @@
                         </a-row>
                         <a-row>
                             <a-col :span="12" class="labelContainer">
-                                <span>水印横向偏移：</span>
-                            </a-col>
-                            <a-col :span="12">
-                                <a-input-number v-model:value="rusultData.watermarkData.offsetX" addonAfter="px"
-                                    :min="0" :max="xMax" @pressEnter="(event) => { event.target.blur(); }" />
-                            </a-col>
-                        </a-row>
-                        <a-row>
-                            <a-col :span="12" class="labelContainer">
-                                <span>水印纵向偏移：</span>
-                            </a-col>
-                            <a-col :span="12">
-                                <a-input-number v-model:value="rusultData.watermarkData.offsetY" addonAfter="px"
-                                    :min="0" :max="yMax" @pressEnter="(event) => { event.target.blur(); }" />
-                            </a-col>
-                        </a-row>
-                        <a-row>
-                            <a-col :span="12" class="labelContainer">
                                 <span>背景图片缩放比：</span>
                             </a-col>
                             <a-col :span="12">
-                                <a-input-number v-model:value="rusultData.backgroundData.scale" addonAfter="%"
-                                    disabled />
+                                <a-input-number v-model:value="keyData.backgroundData.scale" disabled />
                             </a-col>
                         </a-row>
                         <a-row>
@@ -95,7 +74,25 @@
                                 <span>水印图片缩放比：</span>
                             </a-col>
                             <a-col :span="12">
-                                <a-input-number v-model:value="rusultData.watermarkData.scale" addonAfter="%" />
+                                <a-input-number v-model:value="keyData.watermarkData.scale" disabled />
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
+                                <span>水印横向偏移：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-input-number v-model:value="keyData.watermarkData.offsetX" addonAfter="px" :min="0"
+                                    :max="xMax" @pressEnter="(event) => { event.target.blur(); }" />
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="12" class="labelContainer">
+                                <span>水印纵向偏移：</span>
+                            </a-col>
+                            <a-col :span="12">
+                                <a-input-number v-model:value="keyData.watermarkData.offsetY" addonAfter="px" :min="0"
+                                    :max="yMax" @pressEnter="(event) => { event.target.blur(); }" />
                             </a-col>
                         </a-row>
                     </div>
@@ -108,21 +105,40 @@
 <script setup>
 import { ref, onMounted, useTemplateRef, watch } from 'vue'
 import { DownloadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined } from '@ant-design/icons-vue';
+import { loadImage } from './assets/utils'
+
+const bFileList = ref([{
+    uid: '-1',
+    name: 'background.jpg',
+    status: 'done',
+    url: './assets/background.jpg',
+},]);
+const wFileList = ref([{
+    uid: '-1',
+    name: 'mark.svg',
+    status: 'done',
+    url: './assets/mark.svg',
+},]);
 
 
 // 图片打水印的关键数据
-const rusultData = ref({
+const keyData = ref({
     backgroundData: {
-        scale: 100,
+        height: 640,
+        width: 427,
+        scale: 1,
     },
     watermarkData: {
-        scale: 100,
+        height: 31,
+        width: 30,
+        scale: 1,
         offsetX: 0,
         offsetY: 0,
     },
 });
 
-watch(rusultData, (newData) => {
+watch(keyData, (newData) => {
     watermarkContainerRef.value.style.transform = `translate(${newData.watermarkData.offsetX}px, ${newData.watermarkData.offsetY}px)`;
 }, { deep: true });
 
@@ -174,8 +190,8 @@ function SetDraggingTranslateSyle(e) {
         offsetY >= 0 &&
         offsetY <= yMax.value
     ) {
-        rusultData.value.watermarkData.offsetX = offsetX
-        rusultData.value.watermarkData.offsetY = offsetY
+        keyData.value.watermarkData.offsetX = offsetX
+        keyData.value.watermarkData.offsetY = offsetY
     }
 
 };
@@ -186,44 +202,134 @@ function handleKeydown(event) {
     switch (event.code) {
         case "ArrowDown":
             // Handle "down"
-            if (rusultData.value.watermarkData.offsetY > -1 &&
-                rusultData.value.watermarkData.offsetY < yMax.value
-            ) { rusultData.value.watermarkData.offsetY++ };
+            if (keyData.value.watermarkData.offsetY > -1 &&
+                keyData.value.watermarkData.offsetY < yMax.value
+            ) { keyData.value.watermarkData.offsetY++ };
             break;
         case "ArrowUp":
             // Handle "up"
-            if (rusultData.value.watermarkData.offsetY > 0 &&
-                rusultData.value.watermarkData.offsetY < yMax.value + 1
-            ) { rusultData.value.watermarkData.offsetY-- };
+            if (keyData.value.watermarkData.offsetY > 0 &&
+                keyData.value.watermarkData.offsetY < yMax.value + 1
+            ) { keyData.value.watermarkData.offsetY-- };
             break;
         case "ArrowLeft":
             // Handle "turn left"
-            if (rusultData.value.watermarkData.offsetX > 0 &&
-                rusultData.value.watermarkData.offsetX < xMax.value + 1
-            ) { rusultData.value.watermarkData.offsetX-- };
+            if (keyData.value.watermarkData.offsetX > 0 &&
+                keyData.value.watermarkData.offsetX < xMax.value + 1
+            ) { keyData.value.watermarkData.offsetX-- };
             break;
         case "ArrowRight":
             // Handle "turn right"
-            if (rusultData.value.watermarkData.offsetX > -1 &&
-                rusultData.value.watermarkData.offsetX < xMax.value
-            ) { rusultData.value.watermarkData.offsetX++ };
+            if (keyData.value.watermarkData.offsetX > -1 &&
+                keyData.value.watermarkData.offsetX < xMax.value
+            ) { keyData.value.watermarkData.offsetX++ };
             break;
     }
 }
 
+// 上传事件
+const handleChange = info => {
+    let resFileList = [...info.fileList];
+
+    if (info.file.status = 'uploading' && resFileList.length > 0) {
+        resFileList[0].status = 'done'
+    }
+};
+
+const beforeUploadBG = file => {
+    beforeUpload(file, "backgroundData");
+};
+
+const beforeUploadWM = file => {
+    beforeUpload(file, "watermarkData");
+};
+
+// 上传前事件
+const beforeUpload = (file, type) => {
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+        const img = document.createElement('img');
+        img.src = reader.result;
+        img.onload = () => {
+            keyData.value[type].height = img.height;
+            keyData.value[type].width = img.width;
+
+            if (type === "backgroundData") {
+                backgroundContainerRef.value.style.backgroundImage = `url(${img.src})`;
+            };
+
+            if (type === "watermarkData") {
+                let scale = keyData.value.backgroundData.scale;
+                watermarkContainerRef.value.style.backgroundImage = `url(${img.src})`;
+                watermarkContainerRef.value.style.height = parseInt(img.height * scale) + "px";
+                watermarkContainerRef.value.style.width = parseInt(img.width * scale) + "px";
+            };
+
+            updateFundermantialData()
+        };
+    };
+
+    // 阻止真实上传
+    return false;
+};
+
+// 下载事件
+async function handleClick() {
+
+    let bgImg, wmImg;
+
+    let bgSrc = window.getComputedStyle(backgroundContainerRef.value, null).backgroundImage.slice(5, -2);
+    let wmSrc = window.getComputedStyle(watermarkContainerRef.value, null).backgroundImage.slice(5, -2);
+
+    bgImg = await loadImage(bgSrc);
+    wmImg = await loadImage(wmSrc);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = keyData.value.backgroundData.width;
+    canvas.height = keyData.value.backgroundData.height;
+
+    let scale = keyData.value.backgroundData.scale;
+    let { offsetX,offsetY } = keyData.value.watermarkData;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bgImg, 0, 0);
+    ctx.drawImage(wmImg, offsetX / scale, offsetY / scale);
+
+    const el = document.createElement('a');
+    el.href = canvas.toDataURL("image/jpeg", 0.8);
+    el.download = '带水印图片' + new Date().getTime();
+
+    const event = new MouseEvent('click');
+    el.dispatchEvent(event);
+
+};
+
 function updateFundermantialData() {
-    rusultData.value.watermarkData.offsetX = 0;
-    rusultData.value.watermarkData.offsetY = 0;
+    keyData.value.watermarkData.offsetX = 0;
+    keyData.value.watermarkData.offsetY = 0;
+
+    // 计算背景、水印图片缩放值
+    keyData.value.backgroundData.scale = Math.min(backgroundContainerRef.value.clientHeight / keyData.value.backgroundData.height,
+        backgroundContainerRef.value.clientWidth / keyData.value.backgroundData.width);
+    keyData.value.watermarkData.scale = Math.min(watermarkContainerRef.value.clientHeight / keyData.value.watermarkData.height,
+        watermarkContainerRef.value.clientWidth / keyData.value.watermarkData.width);
+
+    // 设置水印图片top、left，确保它在背景图片内
+    watermarkContainerRef.value.style.top = parseInt((backgroundContainerRef.value.clientHeight - keyData.value.backgroundData.height * keyData.value.backgroundData.scale) / 2) + "px";
+    watermarkContainerRef.value.style.left = parseInt((backgroundContainerRef.value.clientWidth - keyData.value.backgroundData.width * keyData.value.backgroundData.scale) / 2) + "px";
 
     // 设置滑动条的水印偏移值范围
-    let height = backgroundContainerRef.value.clientHeight - watermarkContainerRef.value.clientHeight;
-    let width = backgroundContainerRef.value.clientWidth - watermarkContainerRef.value.clientWidth;
+    let diffHeight = parseInt(keyData.value.backgroundData.height * keyData.value.backgroundData.scale - keyData.value.watermarkData.height * keyData.value.watermarkData.scale);
+    let diffWidth = parseInt(keyData.value.backgroundData.width * keyData.value.backgroundData.scale - keyData.value.watermarkData.width * keyData.value.watermarkData.scale);
+
     delete yMarks.value[yMax.value];
     delete xMarks.value[xMax.value];
-    yMarks.value[height] = `${height}px`;
-    xMarks.value[width] = `${width}px`;
-    yMax.value = height;
-    xMax.value = width;
+    yMarks.value[diffHeight] = `${diffHeight}px`;
+    xMarks.value[diffWidth] = `${diffWidth}px`;
+    yMax.value = diffHeight;
+    xMax.value = diffWidth;
 }
 
 onMounted(() => {
@@ -262,8 +368,8 @@ onMounted(() => {
     position: absolute;
     top: 0;
     left: 0;
-    height: 50px;
-    width: 50px;
+    height: 31px;
+    width: 30px;
     background-image: url("./assets/mark.svg");
     background-size: contain;
     background-position: center;
