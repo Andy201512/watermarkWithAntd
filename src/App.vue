@@ -238,10 +238,16 @@ const handleChange = info => {
 
 const beforeUploadBG = file => {
     beforeUpload(file, "backgroundData");
+
+    // 阻止真实上传
+    return false;
 };
 
 const beforeUploadWM = file => {
     beforeUpload(file, "watermarkData");
+    
+    // 阻止真实上传
+    return false;
 };
 
 // 上传前事件
@@ -270,9 +276,6 @@ const beforeUpload = (file, type) => {
             updateFundermantialData()
         };
     };
-
-    // 阻止真实上传
-    return false;
 };
 
 // 下载事件
