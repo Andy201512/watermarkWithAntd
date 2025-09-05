@@ -1,18 +1,13 @@
-.mainView{
+.mainView {
     height: 100vh;
     width: 100vw;
     background-color: antiquewhite;
     display: grid;
     grid-template-areas:
-        "previewPart"
-        "operatePart";
-    grid-template-rows: 61.8% 38.2%;
+        "previewPart";
+    grid-template-rows: 90%;
 }
 
-.previewPart{
+.previewPart {
     grid-area: previewPart;
-}
-
-.operatePart{
-    grid-area: operatePart;
 }

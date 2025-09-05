@@ -15,15 +15,36 @@
                     </div>
                 </div>
             </div>
-            <a-float-button @click="handleClick" :style="{
+            <a-float-button @click="handleClick" :style="isMoreThan900px ? {
                 top: '45%',
                 right: '39%',
+            } : {
+                top: '90%',
+                left: '13%',
             }">
                 <template #icon>
                     <DownloadOutlined />
                 </template>
             </a-float-button>
-            <div class="operatePart">
+            <a-float-button v-if="!isMoreThan900px" @click="handleBgUploadClick" :style="{
+                top: '90%',
+                left: '46%',
+            }">
+                <template #icon>
+                    <FileImageOutlined />
+                    <input type="file" ref="bgInput" @change="handleBgInputChange" style="display:none" />
+                </template>
+            </a-float-button>
+            <a-float-button v-if="!isMoreThan900px" @click="handleWmUploadClick" :style="{
+                top: '90%',
+                left: '80%',
+            }">
+                <template #icon>
+                    <HeartOutlined />
+                    <input type="file" ref="wmInput" @change="handleWmInputChange" style="display:none" />
+                </template>
+            </a-float-button>
+            <div class="operatePart" v-if="isMoreThan900px">
                 <div>
                     <a-slider v-model:value="keyData.watermarkData.offsetX" :marks="xMarks" :max="xMax" />
                 </div>
@@ -103,8 +124,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, useTemplateRef, watch } from 'vue'
-import { DownloadOutlined } from '@ant-design/icons-vue';
+import { ref, onMounted, useTemplateRef, watch, computed } from 'vue'
+import { DownloadOutlined, FileImageOutlined, HeartOutlined } from '@ant-design/icons-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import { loadImage } from './assets/utils'
 
@@ -138,12 +159,22 @@ const keyData = ref({
     },
 });
 
+// 浏览器宽高
+const windowData = ref({
+    height: 0,
+    width: 0,
+})
+
 watch(keyData, (newData) => {
     watermarkContainerRef.value.style.transform = `translate(${newData.watermarkData.offsetX}px, ${newData.watermarkData.offsetY}px)`;
 }, { deep: true });
 
+const isMoreThan900px = computed(() => { return windowData.value.width > 900 })
+
 const backgroundContainerRef = useTemplateRef("backgroundContainer");
 const watermarkContainerRef = useTemplateRef("watermarkContainer");
+const bgInputRef = useTemplateRef("bgInput");
+const wmInputRef = useTemplateRef("wmInput");
 
 // 水印开始滑动时的鼠标位置
 var lastCursorPosX = 0;
@@ -237,21 +268,41 @@ const handleChange = info => {
 };
 
 const beforeUploadBG = file => {
-    beforeUpload(file, "backgroundData");
+    handleImage(file, 'backgroundData');
 
     // 阻止真实上传
     return false;
 };
 
 const beforeUploadWM = file => {
-    beforeUpload(file, "watermarkData");
-    
+    handleImage(file, 'watermarkData');
+
     // 阻止真实上传
     return false;
 };
 
-// 上传前事件
-const beforeUpload = (file, type) => {
+const handleBgUploadClick = () => {
+    const event = new MouseEvent('click');
+    bgInputRef.value.dispatchEvent(event);
+};
+
+const handleBgInputChange = (event) => {
+    var file = event.target.files[0]; // 获取选中的第一个文件
+    handleImage(file, 'backgroundData');
+};
+
+const handleWmUploadClick = () => {
+    const event = new MouseEvent('click');
+    wmInputRef.value.dispatchEvent(event);
+};
+
+const handleWmInputChange = (event) => {
+    var file = event.target.files[0]; // 获取选中的第一个文件
+    handleImage(file, 'watermarkData');
+};
+
+// 读取文件数据，不发起真实上传
+const handleImage = (file, type) => {
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -294,7 +345,7 @@ async function handleClick() {
     canvas.height = keyData.value.backgroundData.height;
 
     let scale = keyData.value.backgroundData.scale;
-    let { offsetX,offsetY } = keyData.value.watermarkData;
+    let { offsetX, offsetY } = keyData.value.watermarkData;
 
     const ctx = canvas.getContext('2d');
     ctx.drawImage(bgImg, 0, 0);
@@ -333,6 +384,8 @@ function updateFundermantialData() {
     xMarks.value[diffWidth] = `${diffWidth}px`;
     yMax.value = diffHeight;
     xMax.value = diffWidth;
+
+    windowData.value.width = document.innerWidth||document.documentElement.clientWidth||document.body.clientWidth;
 }
 
 onMounted(() => {
