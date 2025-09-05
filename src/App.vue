@@ -9,8 +9,9 @@
                 <div id="previewContainer">
                     <div id="backgroundContainer" ref="backgroundContainer"
                         @dragover="(event) => { event.preventDefault() }">
-                        <div id="watermarkContainer" ref="watermarkContainer" draggable="true" @dragstart="RecordPos"
-                            @dragend="SetDraggingTranslateSyle" @touchstart="RecordPos" @touchend="SetDraggingTranslateSyle" tabindex="0" @keydown="handleKeydown">
+                        <div id="watermarkContainer" ref="watermarkContainer" draggable="true"
+                            @dragstart="handleDragStart" @dragend="handleDragEnd" @touchstart="handleTouchStart"
+                            @touchend="handleTouchEnd" tabindex="0" @keydown="handleKeydown">
                         </div>
                     </div>
                 </div>
@@ -196,8 +197,8 @@ const yMarks = ref({
 const xMax = ref(100)
 const yMax = ref(100)
 
-// 记录拖动开始
-function RecordPos(e) {
+// 拖动开始
+function handleDragStart(e) {
 
     lastCursorPosX = e.clientX;
     lastCursorPosY = e.clientY;
@@ -209,8 +210,8 @@ function RecordPos(e) {
 
 };
 
-// 拖拽水印偏移
-function SetDraggingTranslateSyle(e) {
+// 拖动结束
+function handleDragEnd(e) {
 
     let offsetX = watermarkTranslateX + (e.clientX - lastCursorPosX);
     let offsetY = watermarkTranslateY + (e.clientY - lastCursorPosY);
@@ -226,6 +227,46 @@ function SetDraggingTranslateSyle(e) {
     }
 
 };
+
+// 触摸开始
+function handleTouchStart(evt) {
+    evt.preventDefault();
+
+    const touches = evt.changedTouches;
+
+    if (touches.length > 0) {
+        lastCursorPosX = touches[0].clientX;
+        lastCursorPosY = touches[0].clientY;
+
+
+        let lastWatermarkXY = evt.target.style.transform.match(/([1-9]\d*\.?\d*)|(0\.\d*[1-9])/g) || [0, 0];
+        watermarkTranslateX = parseInt(lastWatermarkXY[0]) || 0;
+        watermarkTranslateY = parseInt(lastWatermarkXY[1]) || 0;
+
+    }
+}
+
+// 触摸结束
+function handleTouchEnd(evt) {
+
+    const touches = evt.changedTouches;
+
+    if (touches.length > 0) {
+
+        let offsetX = watermarkTranslateX + (touches[0].clientX - lastCursorPosX);
+        let offsetY = watermarkTranslateY + (touches[0].clientY - lastCursorPosY);
+
+        if (
+            offsetX >= 0 &&
+            offsetX <= xMax.value &&
+            offsetY >= 0 &&
+            offsetY <= yMax.value
+        ) {
+            keyData.value.watermarkData.offsetX = offsetX
+            keyData.value.watermarkData.offsetY = offsetY
+        }
+    }
+}
 
 // 键盘方向键水印偏移
 function handleKeydown(event) {
@@ -385,7 +426,7 @@ function updateFundermantialData() {
     yMax.value = diffHeight;
     xMax.value = diffWidth;
 
-    windowData.value.width = document.innerWidth||document.documentElement.clientWidth||document.body.clientWidth;
+    windowData.value.width = document.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 }
 
 onMounted(() => {
