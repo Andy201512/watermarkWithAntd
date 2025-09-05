@@ -10,7 +10,7 @@
                     <div id="backgroundContainer" ref="backgroundContainer"
                         @dragover="(event) => { event.preventDefault() }">
                         <div id="watermarkContainer" ref="watermarkContainer" draggable="true" @dragstart="RecordPos"
-                            @dragend="SetDraggingTranslateSyle" tabindex="0" @keydown="handleKeydown">
+                            @dragend="SetDraggingTranslateSyle" @touchstart="RecordPos" @touchend="SetDraggingTranslateSyle" tabindex="0" @keydown="handleKeydown">
                         </div>
                     </div>
                 </div>
