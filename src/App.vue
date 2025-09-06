@@ -129,6 +129,7 @@ import { ref, onMounted, useTemplateRef, watch, computed } from 'vue'
 import { DownloadOutlined, FileImageOutlined, HeartOutlined } from '@ant-design/icons-vue';
 import { UploadOutlined } from '@ant-design/icons-vue';
 import { loadImage } from './assets/utils'
+import imgUrl from './assets/mark.svg?no-inline'
 
 const bFileList = ref([{
     uid: '-1',
@@ -140,7 +141,7 @@ const wFileList = ref([{
     uid: '-1',
     name: 'mark.svg',
     status: 'done',
-    url: './assets/mark.svg',
+    url: imgUrl,
 },]);
 
 
