@@ -359,10 +359,7 @@ const handleImage = (file, type) => {
             };
 
             if (type === "watermarkData") {
-                let scale = keyData.value.backgroundData.scale;
                 watermarkContainerRef.value.style.backgroundImage = `url(${img.src})`;
-                watermarkContainerRef.value.style.height = parseInt(img.height * scale) + "px";
-                watermarkContainerRef.value.style.width = parseInt(img.width * scale) + "px";
             };
 
             updateFundermantialData()
@@ -401,15 +398,39 @@ async function handleClick() {
 
 };
 
-function updateFundermantialData() {
+// 获取图片宽高
+async function setWatermarkWH(url,scale) {
+
+    const img = document.createElement('img');
+
+    img.src = url;
+
+    await new Promise((resolve, reject) => {
+
+        img.onload = () => {
+            watermarkContainerRef.value.style.height = parseInt(img.height * scale) + "px";
+            watermarkContainerRef.value.style.width = parseInt(img.width * scale) + "px";
+            resolve()
+        };
+
+        img.onerror = (error) => {
+            console.log(error)
+            reject(error);
+        };
+
+    });
+}
+
+async function updateFundermantialData() {
     keyData.value.watermarkData.offsetX = 0;
     keyData.value.watermarkData.offsetY = 0;
 
     // 计算背景、水印图片缩放值
     keyData.value.backgroundData.scale = Math.min(backgroundContainerRef.value.clientHeight / keyData.value.backgroundData.height,
         backgroundContainerRef.value.clientWidth / keyData.value.backgroundData.width);
-    keyData.value.watermarkData.scale = Math.min(watermarkContainerRef.value.clientHeight / keyData.value.watermarkData.height,
-        watermarkContainerRef.value.clientWidth / keyData.value.watermarkData.width);
+    keyData.value.watermarkData.scale = keyData.value.backgroundData.scale;
+
+    await setWatermarkWH(wFileList.value[0].url, keyData.value.backgroundData.scale);    
 
     // 设置水印图片top、left，确保它在背景图片内
     watermarkContainerRef.value.style.top = parseInt((backgroundContainerRef.value.clientHeight - keyData.value.backgroundData.height * keyData.value.backgroundData.scale) / 2) + "px";
